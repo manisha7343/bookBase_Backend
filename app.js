@@ -1,4 +1,7 @@
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 const express = require("express");
+
 require("dotenv").config();
 const cors = require("cors");
 const app = express();
@@ -8,7 +11,8 @@ const app = express();
 // const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const bookRoutes = require("./routes/bookRoutes");
 const adminBookRoutes = require("./routes/adminBookRoutes");
-
+const userRoutes = require("./routes/userRoutes");
+const adminUserRoutes = require("./routes/adminUserRoutes");
 // ------------ DB connection --------------------
 const connectDB = require("./config/db");
 connectDB();
@@ -28,7 +32,8 @@ app.get("/", (req, res) => {
 // app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/admin/books", adminBookRoutes);
-
+app.use("/api/users", userRoutes);
+app.use("/api/admin/users", adminUserRoutes);
 
 
 //--------------- Error middleware ---------------
