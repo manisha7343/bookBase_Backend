@@ -1,4 +1,5 @@
-const checkRole = (...allowedRoles) => {
+const checkRole = (...roles) => {
+  const allowedRoles = roles.flat();
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({

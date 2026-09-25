@@ -1,9 +1,9 @@
+const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 // 1. Get User Profile
 const getUserProfile = async (req, res) => {
   try {
-    // Assuming you attach user ID from auth middleware later
     const user = await User.findById(req.user.id).select("-password");
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -14,16 +14,20 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// 2. Update Profile
+// 2. Update Profile (Name, Country, etc.)
 const updateUserProfile = async (req, res) => {
   try {
     const { name, country } = req.body;
+    const updateData = {};
+    if (name) updateData.name = name.trim();
+    if (country) updateData.country = country.trim();
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { name, country },
+      updateData,
       { new: true, runValidators: true }
     ).select("-password");
-    
+
     res.status(200).json({
       success: true,
       message: "Profile updated successfully",
@@ -38,16 +42,42 @@ const updateUserProfile = async (req, res) => {
 const resetPassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
 
-    if (user.password !== currentPassword) {
-      return res.status(400).json({ success: false, message: "Incorrect current password" });
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required",
+      });
     }
 
-    user.password = newPassword;
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long",
+      });
+    }
+
+    const user = await User.findById(req.user.id).select("+password");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect current password",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
     await user.save();
 
-    res.status(200).json({ success: true, message: "Password reset successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -56,8 +86,12 @@ const resetPassword = async (req, res) => {
 // 4. Admin: Get All Users
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password");
-    res.status(200).json({ success: true, count: users.length, users });
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      users,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -84,8 +118,16 @@ const blockUser = async (req, res) => {
       { isBlocked: true },
       { new: true }
     ).select("-password");
-    
-    res.status(200).json({ success: true, message: "User blocked successfully", user });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User blocked successfully",
+      user,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -99,8 +141,16 @@ const unblockUser = async (req, res) => {
       { isBlocked: false },
       { new: true }
     ).select("-password");
-    
-    res.status(200).json({ success: true, message: "User unblocked successfully", user });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User unblocked successfully",
+      user,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -1,6 +1,4 @@
 const express = require("express");
-// ADMIN 
-// create | getBooks | BookById | update | delete
 const {
   createBook,
   getBooks,
@@ -8,8 +6,12 @@ const {
   updateBook,
   deleteBook,
 } = require("../controllers/bookController");
+const { verifyJWT } = require("../middleware/authMiddleware");
+const { checkRole } = require("../middleware/roleMiddleware");
 
 const router = express.Router();
+
+router.use(verifyJWT, checkRole("admin"));
 
 // Create book
 router.post("/", createBook);

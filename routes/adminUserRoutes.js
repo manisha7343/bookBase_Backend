@@ -5,7 +5,12 @@ const {
   blockUser,
   unblockUser,
 } = require("../controllers/userController");
+const { verifyJWT } = require("../middleware/authMiddleware");
+const { checkRole } = require("../middleware/roleMiddleware");
+
 const router = express.Router();
+
+router.use(verifyJWT, checkRole("admin"));
 
 router.get("/", getAllUsers);
 router.get("/:id", getUserById);

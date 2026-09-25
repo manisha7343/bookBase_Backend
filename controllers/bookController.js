@@ -4,7 +4,12 @@ const Book = require("../models/Book");
 
 const createBook = async (req, res) => {
   try {
-    const book = await Book.create(req.body);
+    const bookData = { ...req.body };
+    if (bookData.availableQuantity === undefined && bookData.quantity !== undefined) {
+      bookData.availableQuantity = bookData.quantity;
+    }
+
+    const book = await Book.create(bookData);
 
     res.status(201).json({
       success: true,
@@ -23,7 +28,7 @@ const createBook = async (req, res) => {
 
 const getBooks = async (req, res) => {
   try {
-    const books = await Book.find();
+    const books = await Book.find().sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -120,19 +125,26 @@ const deleteBook = async (req, res) => {
     });
   }
 };
+
 // ================= SEARCH BOOKS =================
 
 const searchBooks = async (req, res) => {
   try {
     const { title, author, category } = req.query;
+    const conditions = [];
 
-    const books = await Book.find({
-      $or: [
-        { title: { $regex: title || "", $options: "i" } },
-        { author: { $regex: author || "", $options: "i" } },
-        { category: { $regex: category || "", $options: "i" } },
-      ],
-    });
+    if (title && title.trim()) {
+      conditions.push({ title: { $regex: title.trim(), $options: "i" } });
+    }
+    if (author && author.trim()) {
+      conditions.push({ author: { $regex: author.trim(), $options: "i" } });
+    }
+    if (category && category.trim()) {
+      conditions.push({ category: { $regex: category.trim(), $options: "i" } });
+    }
+
+    const query = conditions.length > 0 ? { $or: conditions } : {};
+    const books = await Book.find(query);
 
     res.status(200).json({
       success: true,

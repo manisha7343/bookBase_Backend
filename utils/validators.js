@@ -25,7 +25,7 @@ const validateRegister = ({
     return { error: "Country is required" };
   }
 
-  if (!role || !validRoles.includes(role.toLowerCase())) {
+  if (role && !validRoles.includes(role.toLowerCase())) {
     return { error: "Role must be user or admin" };
   }
 
@@ -33,7 +33,7 @@ const validateRegister = ({
     return { error: "Password must be at least 6 characters" };
   }
 
-  if (password !== confirmPassword) {
+  if (confirmPassword !== undefined && password !== confirmPassword) {
     return { error: "Password and confirm password do not match" };
   }
 
@@ -49,7 +49,7 @@ const validateLogin = ({ email, password, role }) => {
     return { error: "Password is required" };
   }
 
-  if (!role || !validRoles.includes(role.toLowerCase())) {
+  if (role && !validRoles.includes(role.toLowerCase())) {
     return { error: "Role must be user or admin" };
   }
 
