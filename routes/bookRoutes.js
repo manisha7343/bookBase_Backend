@@ -8,7 +8,11 @@ const {
   searchBooks,
 } = require("../controllers/bookController");
 
+const { verifyJWT } = require("../middleware/authMiddleware");
+
 const router = express.Router();
+
+router.use(verifyJWT); // ab sab routes login-protected honge
 
 // Search books
 router.get("/search", searchBooks);

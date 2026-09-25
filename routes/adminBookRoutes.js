@@ -9,12 +9,20 @@ const {
 const { verifyJWT } = require("../middleware/authMiddleware");
 const { checkRole } = require("../middleware/roleMiddleware");
 
+const upload = require("../middleware/upload");
+
 const router = express.Router();
 
 router.use(verifyJWT, checkRole("admin"));
 
+// Dono files (coverImage + bookFile) ek saath handle karne ke liye
+const uploadFields = upload.fields([
+  { name: "coverImage", maxCount: 1 },
+  { name: "bookFile", maxCount: 1 },
+]);
+
 // Create book
-router.post("/", createBook);
+router.post("/", uploadFields, createBook);
 
 // Get all books
 router.get("/", getBooks);
@@ -23,7 +31,7 @@ router.get("/", getBooks);
 router.get("/:id", getBookById);
 
 // Update book
-router.put("/:id", updateBook);
+router.put("/:id", uploadFields, updateBook);
 
 // Delete book
 router.delete("/:id", deleteBook);
