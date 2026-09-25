@@ -15,6 +15,7 @@ const adminUserRoutes = require("./routes/adminUserRoutes");
 const borrowingRoutes = require("./routes/borrowingRoutes");
 const adminBorrowingRoutes = require("./routes/adminBorrowingRoutes");
 const adminDashboardRoutes = require("./routes/adminDashboardRoutes");
+const { getSettings } = require("./controllers/adminDashboardController");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const { initOverdueCron } = require("./cron/overdueCron");
 
@@ -44,6 +45,7 @@ app.use("/api/admin/users", adminUserRoutes);
 app.use("/api/borrowings", borrowingRoutes);
 app.use("/api/admin/borrowings", adminBorrowingRoutes);
 app.use("/api/admin", adminDashboardRoutes);
+app.get("/api/settings", getSettings);
 
 //--------------- Error middleware ---------------
 app.use(notFound);
