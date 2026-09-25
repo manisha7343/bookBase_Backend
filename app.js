@@ -7,12 +7,15 @@ const cors = require("cors");
 const app = express();
 
 //------------- imports Internal Moduels (Routes & Middllewraes & DB)--------------
-// const authRoutes = require("./routes/authRoutes");
-// const { notFound, errorHandler } = require("./middleware/errorMiddleware");
+const authRoutes = require("./routes/authRoutes");
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const bookRoutes = require("./routes/bookRoutes");
 const adminBookRoutes = require("./routes/adminBookRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminUserRoutes = require("./routes/adminUserRoutes");
+const adminDashboardRoutes = require("./routes/adminDashboardRoutes");
+const adminReportRoutes = require("./routes/adminReportRoutes");
+const adminSettingRoutes = require("./routes/adminSettingRoutes");
 // ------------ DB connection --------------------
 const connectDB = require("./config/db");
 connectDB();
@@ -29,16 +32,19 @@ app.get("/", (req, res) => {
 });
 
 //---------------- Routes ---------------------
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/admin/books", adminBookRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin/users", adminUserRoutes);
+app.use("/api/admin/dashboard", adminDashboardRoutes);
+app.use("/api/admin/reports", adminReportRoutes);
+app.use("/api/admin/settings", adminSettingRoutes);
 
 
 //--------------- Error middleware ---------------
-// app.use(notFound);
-// app.use(errorHandler);
+app.use(notFound);
+app.use(errorHandler);
 
 // ---------------- Server ---------------------
 const PORT = 3000; 
