@@ -14,7 +14,7 @@ const register = async (req, res, next) => {
       });
     }
 
-    const { name, email, country, role, password } = req.body;
+    const { name, email, country, password } = req.body; // role hata diya
 
     const existingUser = await User.findOne({
       email: email.toLowerCase()
@@ -34,7 +34,7 @@ const register = async (req, res, next) => {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       country: country.trim(),
-      role: role ? role.toLowerCase() : "user",
+      role: "user", // hamesha hardcode — kabhi body se mat lo
       password: hashedPassword
     });
 
